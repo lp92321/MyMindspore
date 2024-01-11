@@ -1,6 +1,6 @@
 /**
 *****************************************************************************
-*  Copyright (C), 2023-2032, GOSUN CL
+*  Copyright (C) 2023 湖南大学机器人学院 All rights reserved
 *  @file    draw_charts.cpp
 *  @brief   定义用于绘制折线图、柱状图的函数
 *  @author  刘鹏

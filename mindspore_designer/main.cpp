@@ -1,6 +1,6 @@
 /**
 *****************************************************************************
-*  Copyright (C), 2023-2032, GOSUN CL
+*  Copyright (C) 2023 湖南大学机器人学院 All rights reserved
 *  @file    main.cpp
 *  @brief   主函数
 *  @author  刘鹏
@@ -12,14 +12,17 @@
 *****************************************************************************
 */
 
-#include "mainwindow.h"
+#include "flowchar_widget.h"
 
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
+    //有个bug,连接线移动中间的节点，不停的闪或者超过边界了
+    //内存泄漏
+    //视图放大时拖动图元有重影
+    FlowCharWidget flowchar_widget;
+    flowchar_widget.show();
     return a.exec();
 }
