@@ -42,7 +42,7 @@ FlowCharWidget::FlowCharWidget(QWidget *parent)
     }
 
     InitWindow();
-//	DataTest();//好像没用
+
 	
 }
 
@@ -71,7 +71,7 @@ int FlowCharWidget::InitWidget()
     ui->tool_button_bar_->show();
     ui->toolBar_train->hide();
 
-    ui->widget->show();
+    ui->widget_attribute->show();
     ui->widget_2->show();
     ui->dockWidget->show();
     return 0;
@@ -201,7 +201,7 @@ void FlowCharWidget::on_tabWidget_tabBarClicked(int index)
         ui->tool_button_bar_->show();
         ui->toolBar_train->hide();
 
-        ui->widget->show();
+        ui->widget_attribute->show();
         ui->widget_2->show();
         ui->dockWidget->show();
     }
@@ -215,7 +215,7 @@ void FlowCharWidget::on_tabWidget_tabBarClicked(int index)
         ui->tool_button_bar_->hide();
         ui->toolBar_train->hide();
 
-        ui->widget->hide();
+        ui->widget_attribute->hide();
         ui->widget_2->hide();
         ui->dockWidget->hide();
 
@@ -230,7 +230,7 @@ void FlowCharWidget::on_tabWidget_tabBarClicked(int index)
         ui->tool_button_bar_->hide();
         ui->toolBar_train->show();
 
-        ui->widget->hide();
+        ui->widget_attribute->hide();
         ui->widget_2->hide();
         ui->dockWidget->hide();
     }
@@ -261,18 +261,26 @@ void FlowCharWidget::InitWindow()
 //    this->setCentralWidget(scene_->GetFlowcharView());
     ui->graphicsView_widget_->setScene(scene_);
 
-    // 左侧形状菜单(非ui)
-    tool_side_bar_ = new FlowCharToolSideBar(this);
-    // 将给定的dockwidget(tool_side_bar_)添加到指定区域LeftDockWidgetArea
-    this->addDockWidget(Qt::LeftDockWidgetArea, tool_side_bar_);
+//    // 左侧形状菜单(非ui)
+//    tool_side_bar_ = new FlowCharToolSideBar(this);
+//    // 将给定的dockwidget(tool_side_bar_)添加到指定区域LeftDockWidgetArea
+//    this->addDockWidget(Qt::LeftDockWidgetArea, tool_side_bar_);
 //    // 顶层工具栏(控场):(其中的场景指针、左工具指针都指向了实际界面的指针)
 //    tool_button_bar_ = new FlowCharToolButtonBar(this);
     // 顶层工具栏中的FlowchartScene* scene_  = 编辑界面场景scene_（注释后点击工具栏按钮崩溃）
-    ui->tool_button_bar_->SetFlowchartScene(scene_);
+//    tool_button_bar_->SetFlowchartScene(scene_);
     // 顶层工具栏的FlowCharToolSideBar* side_bar_ = 左侧形状菜单tool_side_bar_（注释后点击工具栏按钮崩溃）
-    ui->tool_button_bar_->SetToolSideBar(tool_side_bar_);
+//    ui->tool_button_bar_->SetToolSideBar(tool_side_bar_);
+//    tool_button_bar_->SetToolSideBar(ui->dockWidgetContents);
 //    // 添加toolbar到主窗口
 //    this->addToolBar(tool_button_bar_);
+
+    connect(ui->action_file_save_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+    connect(ui->action_file_read_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+    connect(ui->action_item_type_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+    connect(ui->action_mouse_status_nomal_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+    connect(ui->action_mouse_status_link_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+    connect(ui->action_cut, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
 
     // （main_widget好像注释后无影响，待确认）
     QWidget *main_widget = new QWidget();
@@ -282,10 +290,6 @@ void FlowCharWidget::InitWindow()
     main_widget->resize(100,200);
     main_widget->setStyleSheet("QWidget{background:yellow}");
     this->resize(1400, 800);
-}
-
-void FlowCharWidget::DataTest()
-{
 }
 
 //*******************************工具栏************************************
@@ -314,49 +318,61 @@ void FlowCharToolButtonBar::SetToolSideBar(FlowCharToolSideBar* _side_bar)
 
 void FlowCharToolButtonBar::InitWidget()
 {
-    // 是否将工具栏作为独立窗口进行拖放
-    setFloatable(false);
-    // 是否可以在工具栏区域内或在工具栏区域之间移动工具栏
-    setMovable(false);
-    // 拖动顶部工具栏能放置的位置，未设置时可放任意位置
-	setAllowedAreas(Qt::TopToolBarArea | Qt::RightToolBarArea);
-    //工具按钮的样式，描述如何显示按钮的文本和图标:文本显示在图标旁边
-    this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);//Qt::ToolButtonTextUnderIcon
+//    // 是否将工具栏作为独立窗口进行拖放
+//    setFloatable(false);
+//    // 是否可以在工具栏区域内或在工具栏区域之间移动工具栏
+//    setMovable(false);
+//    // 拖动顶部工具栏能放置的位置，未设置时可放任意位置
+//	setAllowedAreas(Qt::TopToolBarArea | Qt::RightToolBarArea);
+//    //工具按钮的样式，描述如何显示按钮的文本和图标:文本显示在图标旁边
+//    this->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);//Qt::ToolButtonTextUnderIcon
 
-    file_save_ = new QAction(QIcon(QPixmap(":/picture/4.png")), QStringLiteral("保存"));
-//	file_save_ = new QAction(QPixmap(":/new/prefix1/Resources/FileSave.png"), QStringLiteral("保存"));
-    file_read_ = new QAction(QPixmap(":/picture/3.jpg"), QStringLiteral("打开"));
-    item_type_ = new QAction(QPixmap(":/picture/1.jpg"), QStringLiteral("形状(显示图元)"));
-    mouse_status_nomal_ = new QAction(QPixmap(":/picture/2.jpg"), QStringLiteral("指针工具(箭头)"));
-    mouse_status_link_ = new QAction(QPixmap(":/picture/6.jpg"),QStringLiteral("连接线（十字）"));
+//    file_save_ = new QAction(QIcon(QPixmap(":/picture/4.png")), QStringLiteral("保存"));
+////	file_save_ = new QAction(QPixmap(":/new/prefix1/Resources/FileSave.png"), QStringLiteral("保存"));
+//    file_read_ = new QAction(QPixmap(":/picture/3.jpg"), QStringLiteral("打开"));
+//    item_type_ = new QAction(QPixmap(":/picture/1.jpg"), QStringLiteral("形状(显示图元)"));
+//    mouse_status_nomal_ = new QAction(QPixmap(":/picture/2.jpg"), QStringLiteral("指针工具(箭头)"));
+//    mouse_status_link_ = new QAction(QPixmap(":/picture/6.jpg"),QStringLiteral("连接线（十字）"));
 
-	addAction(file_save_);
-	addAction(file_read_);
-	addAction(item_type_);
-	addAction(mouse_status_nomal_);
-	addAction(mouse_status_link_);
+//	addAction(file_save_);
+//	addAction(file_read_);
+//	addAction(item_type_);
+//	addAction(mouse_status_nomal_);
+//	addAction(mouse_status_link_);
 
-	connect(file_save_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
-	connect(file_read_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
-	connect(item_type_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
-	connect(mouse_status_nomal_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
-	connect(mouse_status_link_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+//	connect(file_save_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+//	connect(file_read_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+//	connect(item_type_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+//	connect(mouse_status_nomal_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
+//	connect(mouse_status_link_, SIGNAL(triggered()), this, SLOT(FlowActionSlot()));
 }
 
-void FlowCharToolButtonBar::FileSave()
+void FlowCharWidget::FileCut()
+{
+    // ToolButtonBar内部元素
+    if (scene_ == nullptr)
+        return;
+    FileSave();
+    scene_->StartDeleteItem();
+
+}
+
+//void FlowCharToolButtonBar::FileSave()
+void FlowCharWidget::FileSave()
 {
     // ToolButtonBar内部元素
 	if (scene_ == nullptr)
 		return;
     qDebug()<<"save file ing==";
     //图元结构体向量FlowchartInforBases datas;
-	datas = scene_->FlowChart2Data();
+    datas = scene_->SelectedChart2Data();
 //	for (auto data_one : datas)
 //	{
 //	}
 }
 
-void FlowCharToolButtonBar::FileRead()
+//void FlowCharToolButtonBar::FileRead()
+void FlowCharWidget::FileRead()
 {
     // ToolButtonBar内部元素
 	if (scene_ == nullptr)
@@ -364,33 +380,41 @@ void FlowCharToolButtonBar::FileRead()
 	scene_->Data2FlowChart(datas);
 }
 
-void FlowCharToolButtonBar::FlowActionSlot()
+//void FlowCharToolButtonBar::FlowActionSlot()
+void FlowCharWidget::FlowActionSlot()
 {
 	QAction *signal_action = (QAction*)sender();
     // 指针工具
-	if (signal_action == mouse_status_nomal_){
+    if (signal_action == ui->action_mouse_status_nomal_){
         // 场控的场景变量
 		if (scene_ == nullptr)
 			return;
         // 设置鼠标绘制方式：标准箭头光标
 		scene_->SetSceneMode(SceneMode::MoveItem);
     }//连接线
-	else if (signal_action == mouse_status_link_){
+    else if (signal_action == ui->action_mouse_status_link_){
 		if (scene_ == nullptr)
 			return;
         // 设置鼠标绘制方式：划线十字光标
 		scene_->SetSceneMode(SceneMode::DrawLineItem);
     }//形状作用：显示左侧步骤栏
-	else if (signal_action == item_type_){
-		if (side_bar_ == nullptr)
-			return;
+    else if (signal_action == ui->action_item_type_){
+//		if (side_bar_ == nullptr)
+//			return;
         // 场控的左侧形状菜单变量
-		side_bar_->show();
-    }// 文件保存
-	else if (signal_action == file_save_) {
+//		side_bar_->show();
+        ui->dockWidget->show();
+    }//剪切
+    else if (signal_action == ui->action_cut)
+    {
+        FileCut();
+    }// 文件保存（复制）
+    else if (signal_action == ui->action_file_save_)
+    {// 复制标志位置1
+//        item_infor_->item_type_.create_type = CreateType::CreateItemType_COPY;
 		FileSave();
-    }// 打开文件
-	else if (signal_action == file_read_) {
+    }// 打开文件（粘贴）
+    else if (signal_action == ui->action_file_read_) {
 		FileRead();
 	}
 	return;
@@ -400,8 +424,10 @@ void FlowCharToolButtonBar::FlowActionSlot()
 //FlowCharToolSideBar::FlowCharToolSideBar(Ui::FlowCharWidget* dock_ui_, QWidget *parent /*= Q_NULLPTR*/)
 //	: QDockWidget(parent)
 //    ,dock_ui(dock_ui_)
+//FlowCharToolSideBar::FlowCharToolSideBar(QWidget *parent /*= Q_NULLPTR*/)
+//    : QDockWidget(parent)
 FlowCharToolSideBar::FlowCharToolSideBar(QWidget *parent /*= Q_NULLPTR*/)
-    : QDockWidget(parent)
+    : QWidget(parent)
 {
 	InitWidget();
 }
@@ -421,37 +447,31 @@ void FlowCharToolSideBar::InitWidget()
 {
     // 拖动左工具时：推窗时能放置的位置，不设置时可放任意位置
     //不可拖动时这里设置的位置无效
-//    QWidget* dockWidgetContents = new QWidget();
-//    this->setWidget(dockWidgetContents);
-    setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
-    setWindowTitle(QStringLiteral("网络层库"));
-	setMinimumWidth(270);
+//    setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+//    setWindowTitle(QStringLiteral("网络层库"));
+    setMinimumWidth(200);
 
-    QWidget *main_widget = new QWidget(this);
-    QVBoxLayout *main_layout = new QVBoxLayout(main_widget);
-    main_widget->setLayout(main_layout);
-    this->setWidget(main_widget);
-    qDebug()<<66666666666666;
+//    QWidget *main_widget = new QWidget(this);
+//    QVBoxLayout *main_layout = new QVBoxLayout(main_widget);
+//    main_widget->setLayout(main_layout);
+//    this->setWidget(main_widget);
+
 //    main_widget->setStyleSheet("QWidget{background:yellow}");
 //    dock_ui->widget_dock->setStyleSheet("QWidget{background:yellow}");
+
     //左推窗类中map：QMap<std::string, QPushButton*> vec_btn_;
     vec_btn_.insert("流程", new QPushButton(QStringLiteral("流程")));
     vec_btn_.insert("判定", new QPushButton(QStringLiteral("判定")));
     vec_btn_.insert("自循环", new QPushButton(QStringLiteral("自循环")));
-
+    QVBoxLayout *main_layout = new QVBoxLayout(this);
     for (QMap<std::string, QPushButton*>::iterator iter = vec_btn_.begin(); iter != vec_btn_.end(); iter++){
         main_layout->addWidget(iter.value());
         connect(iter.value(), SIGNAL(pressed()), this, SLOT(FlowButtonSlot()));
     }
-    qDebug()<<6677777777;
+//    qDebug()<<6677777777;
     //将最小大小和拉伸因子拉伸为零的可拉伸空间（QSpacerItem）添加到此方框布局的末尾
     main_layout->addStretch();
     /*main_layout->addWidget(new QAction(""));*/
-}
-
-void FlowCharToolSideBar::InitData()
-{
-
 }
 
 void FlowCharToolSideBar::FlowButtonSlot()

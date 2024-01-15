@@ -46,7 +46,7 @@ private:
 
 
 private:
-	QCursor						hand_cursor_;
+    QCursor						hand_cursor_;//手型光标
     QPoint						mouse_press_point_;//右键按下的坐标
     QPoint						mouse_move_point_;//鼠标移动后的位置
 	bool						is_move_ = false;

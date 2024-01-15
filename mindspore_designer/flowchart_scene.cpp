@@ -92,7 +92,21 @@ void FlowchartScene::SetSceneMode(SceneMode _model)
 	else if (_model == SceneMode::DrawLineItem) {
 		widget_->SetMouseModel(FlowchartCursor::DrawLinkCursor);
 	}
+
 	widget_->update();
+}
+// 获取选中的图元
+FlowchartInforBases FlowchartScene::SelectedChart2Data()
+{
+    // ! [1] 获取流程图所有图元对象
+    FlowchartInforBases datas;
+    auto select_items = this->selectedItems();;
+
+    // ! [2] 获取所有流程图信息
+    for (auto area_item : select_items) {
+        datas.push_back(QGraphToFlow(area_item)->GetItemInformation());
+    }
+    return datas;
 }
 
 // 流程图生成结构体集合
@@ -176,6 +190,7 @@ FlowchartGraphicsItem* FlowchartScene::AddChildItem(FlowchartInforBase* _item_in
 	{
 		// 流程
 //        FlowchartItemRectInfo* aa = (FlowchartItemRectInfo*)_item_infor;//好像无用
+        //设置赋值标志位
 		FlowchartGraphicsRectItem* item_rect = new FlowchartGraphicsRectItem((FlowchartItemRectInfo*)_item_infor);
 		this->addItem(item_rect);
 		flowchar_item = (FlowchartGraphicsItem*)item_rect;
@@ -283,7 +298,7 @@ void FlowchartScene::InitLineEdit()
 //    qss.append("QTextEdit{background:rgba(255,255,255,200); border:1px solid rgb(0,0,0);}");
     qss.append("QTextEdit{background:rgba(255,0,0,200); border:1px solid rgb(0,255,0);}");
 	input_widget_->setStyleSheet(qss.join(""));
-//    input_widget_->hide();// 为什么隐藏
+//    input_widget_->hide();// 为什么隐藏:图元的文本编辑框，有图元且双击聚焦后才在图元上显示
     //焦点离开事件触发信号和槽
 	connect(input_widget_, SIGNAL(FocusOutSignal(QString)), this, SLOT(FocusOutSlot(QString)));
 }
@@ -430,11 +445,15 @@ void FlowchartScene::DeleteItem()
 	}
 }
 
+void FlowchartScene::StartDeleteItem()
+{
+    DeleteItem();
+}
+
 void FlowchartScene::FocusOutSlot(QString _text)
 {
     //此函数功能：修改部件的名字
     // 当前选中部件
-//    qDebug()<<"textedit焦点离开事件槽函数触发====";
 	QList<QGraphicsItem*> graphics_items = this->selectedItems();
 	if (graphics_items.size() == 0) {
 		input_widget_->hide();
@@ -444,7 +463,6 @@ void FlowchartScene::FocusOutSlot(QString _text)
 	FlowchartGraphicsItem* select_item = QGraphToFlow(graphics_items.at(0));
     // focusOutEvent信号获取编辑界面内容，并设置为图元内容（工具提示不设置）
 	select_item->SetText(_text);
-//    qDebug()<<"textedit焦点离开事件设置图元内容完毕====";
     input_widget_->hide();
 }
 
@@ -570,6 +588,7 @@ void FlowchartScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		switch (scene_mode_) {
 		case SceneMode::DrawLineItem:
 		{
+            //  qDebug()<< "mousePressEvent LeftButton DrawLineItem";
             //scenePos鼠标在场景的位置
             if(nullptr == temp_line_){
                 temp_line_ = new QGraphicsLineItem(QLineF(event->scenePos(), event->scenePos()));
@@ -580,7 +599,10 @@ void FlowchartScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 		}
 		case SceneMode::MoveItem:
 		{
+            //  qDebug()<< "mousePressEvent LeftButton MoveItem";
 			// 降序获取，第一个为顶层图元
+            // IntersectsItemShape 输出列表既包含形状完全包含在选择区域内的项目，也包含与区域轮廓相交的项目。这是选择橡皮筋的常用模式。
+            // DescendingOrder 项目按降序排序
 			auto select_items = this->items(event->scenePos(), Qt::IntersectsItemShape, Qt::DescendingOrder);
 			if (select_items.isEmpty())
 				break;
@@ -595,12 +617,13 @@ void FlowchartScene::mousePressEvent(QGraphicsSceneMouseEvent* event)
 			item_temp_->setPos(mouse_move_point_ - item_temp_->boundingRect().center());
 			break;
 		}
-		default:;
+        default:;
 		}
 	}
 	else if (event->button() == Qt::RightButton) {
         //更新鼠标按下点坐标
 		mouse_pressed_point_ = event->scenePos();
+        //  qDebug()<< "mousePressEvent RightButton";
 	}
 	return QGraphicsScene::mousePressEvent(event);
 }
@@ -614,6 +637,7 @@ void FlowchartScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 	// ! [2] 绘制临时线段 连接两图元的动态效果
 	if (scene_mode_ == SceneMode::DrawLineItem
 		&& nullptr != temp_line_) {
+        //  qDebug()<< "mouseMoveEvent DrawLineItem";
 		// 如果临时线段不为空的时候，将press事件中的点和和移动的位置点进行连接，更新临时线
 		QLineF temp_line(temp_line_->line().p1(), event->scenePos());
 		temp_line_->setLine(temp_line);
@@ -622,6 +646,7 @@ void FlowchartScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 	// ! [3] 鼠标拖动图元移动
 	else if (scene_mode_ == SceneMode::MoveItem)
 	{
+        //  qDebug()<< "mouseMoveEvent MoveItem";
 		// ! [4] 更新连线
         //获取items(所有)
 		auto area_items = items();
@@ -668,7 +693,7 @@ void FlowchartScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 
 	}
 
-	
+    //  qDebug()<< "mouseMoveEvent other";
 
 }
 
@@ -677,7 +702,7 @@ void FlowchartScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
     if (temp_line_ != nullptr && scene_mode_ == SceneMode::DrawLineItem)
     {
-
+        //  qDebug()<< "mouseReleaseEvent temp_line_ DrawLineItem";
 		// ! [1] 移除线段的开始点p1和结束点p2处的线段item，QGraphicsItem
 		QList<QGraphicsItem*> startItems = items(temp_line_->line().p1());
 		if (!startItems.isEmpty() && startItems.first() == temp_line_)
@@ -697,6 +722,7 @@ void FlowchartScene::mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 		}
 	}
 	if (item_temp_ != nullptr && scene_mode_ == SceneMode::MoveItem) {
+        //  qDebug()<< "mouseReleaseEvent item_temp_ MoveItem";
 
 		// ! [1]  临时图元置空
 		item_temp_ = nullptr;
@@ -714,12 +740,14 @@ void FlowchartScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 	// ! [1] 判断是否接收数据
     //场景中的FlowchartView	  *widget_;视口
 	if (event->source() == widget_) {
-		event->ignore();
-        qDebug()<< "hunue event";
+        event->ignore();//信号继续往下传
+        //  qDebug()<< "dragEnterEvent widget_ ignore";
 		return QGraphicsScene::dragEnterEvent(event);
 	}
+    //临时图元对象
+    //  qDebug()<< "dragEnterEvent accept";
 	flow_item_temp_ = nullptr;
-	event->accept();
+    event->accept();//信号接收，不往下传
 
 }
 
@@ -727,10 +755,11 @@ void FlowchartScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
 void FlowchartScene::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 {
 	if (flow_item_temp_ == nullptr) {
+        //  qDebug()<< "dragMoveEvent flow_item_temp_";
 		// ! [1] 创建对应图元类型
 		QString item_type = event->mimeData()->text();
 //		FlowchartInforBase* item_infor = new FlowchartInforBase();此处应该创建具体数据结构体
-		if (item_type.compare(QStringLiteral("流程")) == 0)
+        if (item_type.compare(QStringLiteral("流程")) == 0)//字符串比较；
 		{
             FlowchartItemRectInfo* item_infor = new FlowchartItemRectInfo();
 			item_infor->item_content_.content_ = QStringLiteral("算法流程");
@@ -750,14 +779,17 @@ void FlowchartScene::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 		}
 	}
 	if (flow_item_temp_ == nullptr)
+        //  qDebug()<< "dragMoveEvent return";
 		return;
 	FlowToQGraph(flow_item_temp_)->setPos(event->scenePos().toPoint());
 }
 
+//无用
 void FlowchartScene::dragLeaveEvent(QGraphicsSceneDragDropEvent* event)
 {
 	if (flow_item_temp_ != nullptr)
 	{
+        //  qDebug()<< "dragLeaveEvent flow_item_temp_";
 		QGraphicsItem* item = FlowToQGraph(flow_item_temp_);
 		this->removeItem(item);
 		delete item;
@@ -769,9 +801,11 @@ void FlowchartScene::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
 	if (event->source() == widget_) {
 		event->ignore();
+        //  qDebug()<< "dropEvent widget_ ignore";
 		return QGraphicsScene::dragEnterEvent(event);
 	}
 	flow_item_temp_ = nullptr;
-	event->acceptProposedAction();
+    //  qDebug()<< "dropEvent acceptProposedAction";
+    event->acceptProposedAction();//将放下操作设置为建议的接受操作
 }
 

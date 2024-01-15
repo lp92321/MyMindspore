@@ -40,7 +40,7 @@ class FlowchartScene : public QGraphicsScene
 public:
     FlowchartScene(FlowchartView * view, QObject *parent = nullptr);
 	~FlowchartScene();
-
+//    QString	  create_item_type;	 // 复制或新建
 	// 获取视口对象
 	FlowchartView* GetFlowcharView();
 
@@ -50,10 +50,14 @@ public:
 	// 流程图生成结构体集合
 	FlowchartInforBases FlowChart2Data();
 
+    // 获取选中的图元生成结构体集合
+    FlowchartInforBases SelectedChart2Data();
+
 	// 结构体集合生成流程图
 	void Data2FlowChart(FlowchartInforBases _datas);
 
-
+    // 剪切时删除图元
+    void StartDeleteItem();
 private:
 
 	// 添加一个图元
@@ -107,11 +111,11 @@ protected:
     virtual void dragEnterEvent(QGraphicsSceneDragDropEvent *event);//当拖放操作进入窗体时发送给它的事件
     virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event);//在进行拖放操作时发送的事件
     virtual void dragLeaveEvent(QGraphicsSceneDragDropEvent *event);//当拖放操作离开窗体时发送给它的事件
-    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);//当一个拖放操作完成时的事件
+    virtual void dropEvent(QGraphicsSceneDragDropEvent *event);//当一个拖放操作完成时的事件（丢弃事件）
 //    bool eventFilter(QObject *obj,QEvent *e);//重写事件筛选器
 private:
 
-    FlowchartView	  *widget_;	 // 视口(交给ui)
+    FlowchartView	  *widget_;	 // 视口(通过ui赋值)
     QMenu	  *menu_;	 // 右键菜单
     CutomTextWdit  *input_widget_;	 // 图元编辑框（修改图元名字的TextEdit框）
     SceneMode	 scene_mode_ = SceneMode::MoveItem;	 // 鼠标编辑模式

@@ -24,8 +24,17 @@ FlowchartGraphicsRectItem::FlowchartGraphicsRectItem(FlowchartItemRectInfo* _inf
 	, FlowchartGraphicsItem(_infor, ItemType::Rect)
 {
 	// ! [1] 初始化图元位置大小
+
     //item_infor_矩形数据结构体
-	item_infor_ = _infor;
+    item_infor_ = (FlowchartItemRectInfo*)_infor;
+    //复制模式下，图元中心点偏移
+//    if(item_infor_->item_type_.create_type == CreateType::CreateItemType_COPY)
+//    {
+//        item_infor_->position_x_ = item_infor_->position_x_ + 15;
+//        item_infor_->position_y_ =item_infor_->position_y_ - 15;
+//    }
+    item_infor_->position_x_ = item_infor_->position_x_ + 15;
+    item_infor_->position_y_ =item_infor_->position_y_ - 15;
     //QRectF类使用浮点精度在平面中定义矩形;QPointF类使用浮点精度定义平面中的点;QSizeF类使用浮点精度定义二维对象的大小。
 	setRect({ QPointF(-item_infor_->width_ / 2, -item_infor_->height_ / 2), QSizeF(item_infor_->width_, item_infor_->height_) });
     // 将部件的位置设置为（0,0），是为了设置默认位置，对之后的通过代码设置相对位置有很大作用

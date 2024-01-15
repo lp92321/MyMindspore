@@ -63,6 +63,7 @@ FlowchartView::~FlowchartView()
 void FlowchartView::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::RightButton) {
+        //  qDebug()<< "View::mousePressEvent RightButton";
 		// ! [1] 鼠标拖动相关
 		SetMouseModel(FlowchartCursor::OpenHandCursor);
         right_press_ = true;//点击右键标志
@@ -74,6 +75,7 @@ void FlowchartView::mousePressEvent(QMouseEvent *event)
 
 void FlowchartView::mouseReleaseEvent(QMouseEvent *event)
 {
+    //   qDebug()<< "View::mouseReleaseEvent setDragMode";
     //将应用程序覆盖光标设置为光标。如果setOverrideCursor（）已被调用两次，则调用restoreOverrideCuror（）将激活第一个游标集。第二次调用此函数将恢复原始小部件的游标。
 	QApplication::restoreOverrideCursor();
 	// 设置鼠标拖动模式
@@ -91,6 +93,7 @@ void FlowchartView::mouseMoveEvent(QMouseEvent *event)
     //将应用程序覆盖光标设置为光标。如果setOverrideCursor（）已被调用两次，则调用restoreOverrideCuror（）将激活第一个游标集。第二次调用此函数将恢复原始小部件的游标。
 	QApplication::restoreOverrideCursor();
 	if (right_press_) {
+        //   qDebug()<< "View::mouseMoveEvent right_press_";
         is_move_ = true;//右键拖动时为true，但是这个标志位好像没啥用
 		setDragMode(QGraphicsView::NoDrag);
         SetMouseModel(FlowchartCursor::ClosedHandCursor);//右键抓取模式
@@ -105,6 +108,7 @@ void FlowchartView::mouseMoveEvent(QMouseEvent *event)
 		QPointF dis = mapToScene(move_pos) - mapToScene(mouse_press_point_);
 		QGraphicsView::translate(dis.x(), dis.y());*/
 	}
+    //   qDebug()<< "View::mouseMoveEvent mouse_move_point_";
 	mouse_move_point_ = event->pos();
 	QGraphicsView::mouseMoveEvent(event);
 }

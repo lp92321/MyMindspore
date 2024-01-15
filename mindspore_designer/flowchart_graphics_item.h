@@ -19,21 +19,23 @@
 #include <QLineEdit>
 
 #include "flowchar_graphics_item_base.h"
-#include "flowchar_graphics_link.h"
+//#include "flowchar_graphics_link.h" 没有用到类中的成员，不需要包含头文件，只用到类指针，只需要声明要用的类就行了
 
 
 // 流程矩形结构体
 struct FlowchartItemRectInfo : FlowchartInforBase
 {
-
+//    CreateMode create_item_type;
 	FlowchartItemRectInfo() :FlowchartInforBase()
 	{
         item_content_.tooltip_ = "流程矩形结构体";
+//        create_item_type = CreateMode::CreateItemType_NEW;
 	};
 	FlowchartItemRectInfo(double _x, double _y, double _width = 160.0, double _height = 40.0)
 		:FlowchartInforBase(_x, _y, _width, _height)
 	{
         item_content_.tooltip_ = "流程矩形结构体";
+//        create_item_type = CreateMode::CreateItemType_NEW;
 	};   
 
 };
@@ -76,6 +78,7 @@ public:
 
 	explicit FlowchartGraphicsRectItem(FlowchartItemRectInfo* _infor, QObject *parent = nullptr);
 	~FlowchartGraphicsRectItem();
+
 
 	// 修改文本内容
 	virtual void SetText(QString _content, QString _tooltip = "") override;
@@ -160,7 +163,7 @@ private:
 #pragma endregion 判定
 
 #pragma region 自循环
-
+class FlowcharGraphicsLink;//声明连接线类就可以了，不需要包含 其头文件
 // 自循环
 class FlowchartGraphicsCirculationItem
 	: public QObject

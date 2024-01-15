@@ -27,6 +27,7 @@ using namespace std;
 #define  M_PI  3.14159265358979323846
 #endif
 #define  PEN_WIDTH  1 //笔宽度
+
 enum class ItemType
 {
 	Null = 0,		// 空
@@ -37,9 +38,16 @@ enum class ItemType
 	Circulation,	// 自循环
 };
 
+//enum class CreateType
+//{
+//    CreateItemType_COPY,
+//    CreateItemType_NEW
+//};
+
 struct FlowchartItemType
 {
 	ItemType	type = ItemType::Null;
+//    CreateType  create_type = CreateType::CreateItemType_NEW;
 };
 
 //鼠标样式枚举：

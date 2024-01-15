@@ -74,12 +74,23 @@ public:
     int InitWidget();
 private slots:
     void on_tabWidget_tabBarClicked(int index);
+    // action通用槽函数
+    void FlowActionSlot();
 private:
 
 	// 初始化窗体
 	void InitWindow();
 
-	void DataTest();
+    // 文件剪切
+    void FileCut();
+
+    // 文件保存
+    void FileSave();
+
+    // 文件读取
+    void FileRead();
+    // 测试数据(粘贴板数据)
+    FlowchartInforBases datas;
 
 
 private:
@@ -89,6 +100,35 @@ private:
 	FlowCharToolButtonBar*			tool_button_bar_;				// 顶层工具栏
 };
 
+//*******************************左侧工具栏************************************
+
+//class  FlowCharToolSideBar : public QDockWidget
+class  FlowCharToolSideBar : public QWidget
+{
+    Q_OBJECT
+
+public:
+//    FlowCharToolSideBar(Ui::FlowCharWidget* dock_ui, QWidget *parent = Q_NULLPTR);
+    FlowCharToolSideBar(QWidget *parent = Q_NULLPTR);
+    ~FlowCharToolSideBar();
+
+    void SetFlowchartScene(FlowchartScene* _scene);
+
+private:
+
+    void InitWidget();
+
+private slots:
+
+    void FlowButtonSlot();
+
+private:
+
+//    QStackedWidget* stacked_widget_;
+
+    FlowchartScene* scene_;
+    QMap<std::string, QPushButton*> vec_btn_;
+};
 
 //*******************************工具栏************************************
 class FlowCharToolButtonBar : public QToolBar
@@ -97,36 +137,34 @@ class FlowCharToolButtonBar : public QToolBar
 
 public:
 
-    FlowCharToolButtonBar(QWidget *parent = Q_NULLPTR);
+    FlowCharToolButtonBar(QWidget *parent = Q_NULLPTR);// 弃用了
 
 	~FlowCharToolButtonBar();
 
-	// 传入场景对象
-	void SetFlowchartScene(FlowchartScene* _scene);
+    // 传入场景对象
+    void SetFlowchartScene(FlowchartScene* _scene);// 弃用了
 
-	// 传入形状栏
-	void SetToolSideBar(FlowCharToolSideBar* _side_bar);
+    // 传入形状栏
+    void SetToolSideBar(FlowCharToolSideBar* _side_bar);// 弃用了
 
 private:
 
 	// 初始化界面
-	void InitWidget();
+    void InitWidget();// 弃用了
 
-	// 文件保存
-	void FileSave();
+//	// 文件保存
+//	void FileSave();
 
-	// 文件读取
-	void FileRead();
+//	// 文件读取
+//	void FileRead();
 
 private slots:
 
-	// action通用槽函数
-	void FlowActionSlot();
+//	// action通用槽函数
+//	void FlowActionSlot();
 
 
 private:
-//    Ui::FlowCharWidget* Tool_ui;
-//    FlowCharWidget* Tool_ui;
 
 	// 设置鼠标状态		指针工具	连接线
 	QAction *mouse_status_nomal_, *mouse_status_link_;
@@ -136,43 +174,11 @@ private:
 	QAction* file_save_, * file_read_;
 
     //
-    FlowchartScene* scene_;
-	FlowCharToolSideBar* side_bar_;
+    FlowchartScene* scene_;// 获取的右侧编辑界面的场景scene_
+    FlowCharToolSideBar* side_bar_;// 获取的左侧图形栏 bar
 
-	// 测试数据
-	FlowchartInforBases datas;
-};
-
-
-//*******************************左侧工具栏************************************
-class  FlowCharToolSideBar : public QDockWidget
-{
-	Q_OBJECT
-
-public:
-//    FlowCharToolSideBar(Ui::FlowCharWidget* dock_ui, QWidget *parent = Q_NULLPTR);
-    FlowCharToolSideBar(QWidget *parent = Q_NULLPTR);
-	~FlowCharToolSideBar();
-
-	void SetFlowchartScene(FlowchartScene* _scene);
-
-private:
-
-	void InitWidget();
-
-    void InitData();// 空函数
-
-private slots:
-
-	void FlowButtonSlot();
-
-private:
-//    FlowCharWidget* dock_ui;
-//    Ui::FlowCharWidget* dock_ui;
-	QStackedWidget* stacked_widget_;
-
-	FlowchartScene* scene_;
-	QMap<std::string, QPushButton*> vec_btn_;
+//    // 测试数据(粘贴板数据)
+//	FlowchartInforBases datas;
 };
 
 #endif // FLOWCHAR_WIDGET_H
